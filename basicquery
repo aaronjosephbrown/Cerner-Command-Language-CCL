@@ -1,0 +1,4 @@
+select * /** Column Name **/
+from /** Table Name **/
+with time = /** number of seconds: e.g. 60/sec  **/,
+maxrec = /** number results: e.g. 100  **/
