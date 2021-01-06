@@ -1,0 +1,13 @@
+select distinct
+category = srca.category_name
+,category_seq = srca.category_sequence
+from
+code_value c
+, sa_ref_category srca
+plan c where c.code_set = 30540
+and c.cdf_meaning = "FLUID"
+join srca
+where srca.category_type_cd = c.code_value
+and srca.active_ind = 1
+order by
+srca.category_sequence
