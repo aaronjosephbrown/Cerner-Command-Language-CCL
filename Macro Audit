@@ -1,0 +1,29 @@
+SELECT Distinct
+SRM.MACRO_NAME,
+sra.action_name,
+srma.todo_ind,
+srma.execute_ind,
+SRDT.SA_REF_DOC_TYPE_NAME,
+SRC.CATEGORY_NAME,
+SRMS.PARENT_ENTITY_NAME,
+FOLDER_TYPE = UAR_GET_CODE_DISPLAY(SRC.CATEGORY_TYPE_CD),
+SRC.PARENT_SA_REF_CATEGORY_ID,
+SRC.CATEGORY_COLOR,
+SRMS.SEQUENCE
+FROM
+SA_REF_MACRO SRM,
+SA_REF_MACRO_SEQUENCE SRMS,
+sa_ref_macro_action srma,
+sa_ref_action sra,
+SA_REF_DOC_TYPE SRDT,
+SA_REF_CATEGORY SRC
+PLAN SRM WHERE SRM.ACTIVE_IND = 1
+AND SRM.MACRO_NAME = "*-*"
+JOIN SRMS WHERE SRMS.SA_REF_MACRO_ID = SRM.SA_REF_MACRO_ID
+join srma where srma.sa_ref_macro_id = srm.sa_ref_macro_id
+               and srma.active_ind = 1
+join sra where sra.sa_ref_action_id = srma.sa_ref_action_id
+JOIN SRDT WHERE SRDT.SA_REF_DOC_TYPE_ID = SRM.SA_REF_DOC_TYPE_ID
+JOIN SRC WHERE SRC.SA_REF_CATEGORY_ID = SRM.SA_REF_CATEGORY_ID
+ORDER BY src.category_name, srm.macro_name
+with time = 60
