@@ -1,0 +1,4 @@
+update from bmdi_monitored_device bmd
+set bmd.location_cd = 0.0
+where bmd.monitored_device_id =        648417487.00 go commit go
+where bmd.device_alias = "DAName"
