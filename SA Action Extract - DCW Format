@@ -1,0 +1,71 @@
+select
+category = src.category_name
+, action_name = s.action_name
+, action_description = s.action_description
+;, action_dta = uar_get_code_display(s.task_assay_cd)
+, action_value_required = evaluate(s.value_required_ind, 0, "N", 1, "Y")
+, action_print = evaluate(s.print_ind, 0, "N", 1, "Y")
+, action_bill = evaluate(s.bill_ind, 0, "N", 1, "Y")
+, action_once = evaluate(s.single_doc_ind, 0, "N", 1, "Y")
+, action_value_type = evaluate(s.value_type_flag,0,"None",1,"Text",2,"Numeric"
+,3,"Item",4,"Personnel")
+;, action_sig = evaluate(s.signature_required_ind, 0, "N", 1, "Y")
+;, action_sup_sig = evaluate(s.supervisor_sign_req_ind, 0, "N", 1, "Y")
+, detail_name = srg.group_prompt
+, detail_selection_req = evaluate(srg.selection_required_ind, 0, "N", 1, "Y")
+, detail_multi = evaluate(srg.multi_select_ind, 0, "N", 1, "Y")
+, detail_print = evaluate(srg.print_ind, 0, "N", 1, "Y")
+, detail_bill = evaluate(srg.bill_ind, 0, "N", 1, "Y")
+, response = sra.action_item_description
+;, response_dta = uar_get_code_display(sra.task_assay_cd)
+, response_value_type = evaluate(sra.value_type_flag,0,"None",1,"Text",2,"Numeric"
+,3,"Item",4,"Personnel",5,"Date/Time","Timer")
+;, response_default_value = sra.default_value
+, response_value_req = evaluate(sra.value_required_ind, 0, "N", 1, "Y")
+, action_icon = sri.icon_name
+from
+sa_ref_action s
+, sa_ref_icon sri
+, dummyt d1
+, sa_ref_cat_action srca
+, sa_ref_category src
+, dummyt d2
+, dummyt d
+, sa_ref_action_group_r sr
+, sa_ref_group srg
+, sa_ref_group_action_item_r srga
+, sa_ref_action_item sra
+plan s
+where s.active_ind = 1
+join sri
+where sri.sa_ref_icon_id = s.sa_ref_icon_id
+join d1
+join srca
+where srca.sa_ref_action_id = s.sa_ref_action_id
+and srca.active_ind = 1
+join src
+where src.sa_ref_category_id = srca.sa_ref_category_id
+and src.active_ind = 1
+join d2
+join d
+join sr
+where sr.sa_ref_action_id = s.sa_ref_action_id
+and sr.active_ind = 1
+join srg
+where srg.sa_ref_group_id = sr.sa_ref_group_id
+and srg.active_ind = 1
+join srga
+where srg.sa_ref_group_id = srga.sa_ref_group_id
+and srga.active_ind = 1
+join sra
+where srga.sa_ref_action_item_id = sra.sa_ref_action_item_id
+and sra.active_ind = 1
+order
+s.action_name
+, category
+, sr.sequence
+, srga.sequence
+with
+outerjoin = d
+, dontcare = srca
+, dontcare = src
