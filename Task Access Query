@@ -1,0 +1,5 @@
+select uar_get_code_display(aa.app_group_cd) from application_access aa
+where application_number = 500022 ; application number here
+and aa.active_ind = 1
+with time = 60, maxrec = 10000, FORMAT (DATE,";;Q")
+go
