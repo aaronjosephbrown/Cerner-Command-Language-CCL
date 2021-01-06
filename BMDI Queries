@@ -1,0 +1,117 @@
+BMDI CCL
+******************************************* BMDI Queries *****************************************
+**************************************************************************************************
+**************************************************************************************************
+;See parameter mappings from SI_MANAGER
+;useful to check mapping build and moving build from one domain to another
+select
+bdp.device_cd,device = uar_get_code_display(bdp.device_cd),
+Parameter_code = uar_get_code_display(sbmp.PARAMETER_CD),
+result_type = uar_get_code_display(bdp.result_type_cd),
+bdp.parameter_alias,
+Event = uar_get_code_display(bdp.event_cd),
+task_assay = uar_get_code_display(bdp.task_assay_cd)
+from BMDI_DEVICE_PARAMETER bdp
+,STRT_BMDI_MODEL_PARAMETER sbmp
+Plan bdp
+join sbmp where sbmp.STRT_MODEL_PARAMETER_ID = bdp.STRT_MODEL_PARAMETER_ID
+order by bdp.device_cd
+with time = 60, maxrec = 10000, FORMAT (DATE,";;Q")
+go
+**************************************************************************************************
+**************************************************************************************************
+**************************************************************************************************
+;Gateway Values
+;View Parameters + locations
+;troubleshoot parameters by location_cd
+select
+bdp.device_cd,device = uar_get_code_display(bdp.device_cd),
+Parameter_code = uar_get_code_display(sbmp.PARAMETER_CD),
+result_type = uar_get_code_display(bdp.result_type_cd),
+bdp.parameter_alias,
+Event = uar_get_code_display(bdp.event_cd),
+task_assay = uar_get_code_display(bdp.task_assay_cd),
+bmd.DEVICE_ALIAS,
+Bed_Number = uar_get_code_display(bmd.LOCATION_CD),
+Service_resource = uar_get_code_display(bmd.RESOURCE_LOC_CD)
+from BMDI_DEVICE_PARAMETER bdp
+,STRT_BMDI_MODEL_PARAMETER sbmp
+,BMDI_MONITORED_DEVICE bmd
+Plan bdp
+join sbmp where sbmp.STRT_MODEL_PARAMETER_ID = bdp.STRT_MODEL_PARAMETER_ID
+join bmd where bmd.device_cd = bdp.DEVICE_CD
+order by bdp.device_cd
+with time = 60, maxrec = 10000, FORMAT (DATE,";;Q")
+go
+**************************************************************************************************
+**************************************************************************************************
+**************************************************************************************************
+;query by device name or subscription name for device lookup or reverse device lookup by subscription name
+select * from
+Di_client_config dcc
+bdp.device_cd
+,BMDI_MONITORED_DEVICE bmd
+plan dcc where dcc.device_name = "*" ;insert devicename to search by
+;where dcc.subscription_name = "" ;insert device subscription to search by
+join bmd where bmd.device_alias = dcc.device_name
+order by dcc.device_name
+with time = 60, maxrec = 10000, FORMAT (DATE,";;Q")
+go
+
+**************************************************************************************************
+**************************************************************************************************
+**************************************************************************************************
+;; The complete table version of what is in SI_manager.
+;;shows you mapped parameters, device name, guid, eventcds & task assays.
+;;helpful for build validation
+;;Gateway information
+select
+bdp.device_cd,device = uar_get_code_display(bdp.device_cd),
+Parameter_code = uar_get_code_display(sbmp.PARAMETER_CD),
+result_type = uar_get_code_display(bdp.result_type_cd),
+bdp.parameter_alias,
+Event = uar_get_code_display(bdp.event_cd),
+task_assay = uar_get_code_display(bdp.task_assay_cd),
+dcc.device_name,
+bmd.DEVICE_ALIAS,
+dcc.subscription_name,
+Bed_Number = uar_get_code_display(bmd.LOCATION_CD),
+Service_resource = uar_get_code_display(bmd.RESOURCE_LOC_CD)
+from BMDI_DEVICE_PARAMETER bdp
+,STRT_BMDI_MODEL_PARAMETER sbmp
+,BMDI_MONITORED_DEVICE bmd
+,di_client_config dcc
+Plan bdp
+join sbmp where sbmp.STRT_MODEL_PARAMETER_ID = bdp.STRT_MODEL_PARAMETER_ID
+join bmd where bmd.device_cd = bdp.DEVICE_CD
+join dcc where dcc.device_name = bmd.device_alias
+order by bdp.device_cd
+with time = 60, maxrec = 10000, FORMAT (DATE,";;Q")
+go
+**************************************************************************************************
+**************************************************************************************************
+**************************************************************************************************
+;Add a device & location without SI_manager
+;see olympus for di_client_Config insert scripting
+
+insert
+into BMDI_MONITORED_DEVICE bmd
+set
+bmd.MONITORED_DEVICE_ID = seq(reference_seq,nextval)
+,bmd.DEVICE_CD = 483603127.00
+,bmd.STRT_MODEL_ID = 21853.00
+,bmd.DEVICE_ALIAS = "GL_MP50_ASTC_01"
+,bmd.MOBILE_IND = 0
+,bmd.LOCATION_CD=0.00
+,bmd.DEVICE_IND = 0
+,bmd.UPDT_ID = 0
+,bmd.UPDT_DT_TM = cnvtdatetime(curdate, curtime)
+,bmd.UPDT_TASK =0
+,bmd.UPDT_APPLCTX =0
+,bmd.UPDT_CNT = 0
+,bmd.STRT_MODEL_CHILD_ID = 0.00
+,bmd.ASSOCIATION_LIMIT_CNT = 1
+,bmd.ALTERNATE_DEVICE_CD = 0
+,bmd.RESOURCE_LOC_CD =
+WITH nocounter GO
+commit go
