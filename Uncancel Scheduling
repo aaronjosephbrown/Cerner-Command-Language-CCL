@@ -1,0 +1,33 @@
+/*** Confirm the case was indeed cancelled by running the query below; 
+insert the applicable case number for the case you wish to find. 
+Write down the cancel reason, who cancelled it, and when it was 
+cancelled so you can re-cancel it after moving the case. ***/
+
+select sc.CANCEL_REASON_cd, sc.cancel_req_by_id, sc.cancel_dt_tm, sc. SURG_CASE_NBR_FORMATTED
+from surgical_case sc
+where sc.SURG_CASE_NBR_FORMATTED = 'CaseNumber' go
+
+/*** Once you’ve confirmed that the case is cancelled and needs to be 
+un-cancelled run the following update statement with the appropriate 
+case number in the where clause. ***/
+
+update into surgical_case
+set CANCEL_DT_TM = cnvtdatetime(0,0),
+CANCEL_REASON_CD = 0.0,
+CANCEL_REQ_BY_ID = 0.0
+where SURG_CASE_NBR_FORMATTED = 'CaseNumber' go commit go
+
+;--set the cancel flags = null, which makes the case appear in anesthesia 
+app so you can disassociate and reassociate
+;--With nothing in the cancel fields, it lets you manipulate the case 
+to get the case data off of the canceled record.
+
+When I’m done moving the case data, simply make the case cancelled again with 
+this query (the cancel data from step 1 before you un-canceled it):
+
+update from surgical_case
+set CANCEL_DT_TM = cnvtdatetime(curdate, curtime),
+CANCEL_REASON_CD = xxxxxxxx.00,
+CANCEL_REQ_BY_ID = xxxxxxxx.00
+where SURG_CASE_NBR_FORMATTED in (“CaseNumber”,”CaseNumber") go
+commit go
