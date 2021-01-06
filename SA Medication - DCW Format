@@ -1,0 +1,62 @@
+SELECT DISTINCT
+DESCRIPTION = o.value
+;, BRAND = o1.value
+;, GENERIC = o2.value
+, CATEGORY = decode(src.sa_ref_cat_medication_id,srca.category_name,"")
+, SEQ = src.sequence
+, STRENGTH = build(format(m.strength,"######.####;LT(1)"),
+uar_get_code_display(m.strength_unit_cd),"/",format(m.volume,"######.####;LT(1)"),
+uar_get_code_display(m.volume_unit_cd))
+FROM
+SA_REF_MEDICATION S
+, SA_REF_CAT_MEDICATION SRC
+, SA_REF_CATEGORY SRCA
+, MEDICATION_DEFINITION M
+, MED_IDENTIFIER O
+, MED_IDENTIFIER O1
+, MED_IDENTIFIER O2
+, SA_REF_MED_PREFERENCE SRMP
+, CODE_VALUE CVD
+, CODE_VALUE CVB
+, CODE_VALUE CVG
+PLAN s
+where s.active_ind = 1
+JOIN src where
+src.sa_ref_medication_id = s.sa_ref_medication_id
+and src.active_ind = 1
+JOIN srca where
+srca.sa_ref_category_id = src.sa_ref_category_id
+and srca.active_ind = 1
+JOIN m where
+m.item_id = s.item_id
+JOIN o where
+o.item_id = s.item_id
+AND o.primary_ind = 1
+AND o.active_ind = 1
+AND o.med_product_id = 0
+JOIN CVD where
+CVD.code_value = o.med_identifier_type_cd
+AND CVD.cdf_meaning = "DESC"
+JOIN o1 where
+o1.item_id = s.item_id
+and o1.primary_ind = 1
+and o1.active_ind = 1
+JOIN CVB where
+CVB.code_value = o1.med_identifier_type_cd
+AND CVB.cdf_meaning = "BRAND_NAME"
+JOIN o2 where
+o2.item_id = s.item_id
+and o2.primary_ind = 1
+and o2.active_ind = 1
+JOIN CVG where
+CVG.code_value = o2.med_identifier_type_cd
+AND CVG.cdf_meaning = "GENERIC_NAME"
+JOIN SRMP WHERE
+SRMP.SA_REF_MEDICATION_ID = outerjoin(S.SA_REF_MEDICATION_ID)
+ORDER BY
+CATEGORY
+, SEQ
+, DESCRIPTION
+;, BRAND
+;, GENERIC
+WITH dontcare = src, dontcare = srca
