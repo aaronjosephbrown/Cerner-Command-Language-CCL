@@ -1,1 +1,1 @@
-# Cerner-Command-Language-CCL-
+# Cerner-Command-Language-CCL
