@@ -1,0 +1,15 @@
+select sar.record_description
+from discrete_task_assay dta, sa_anesthesia_record sar, 
+sa_fluid sf, sa_ref_fluid srf
+plan dta
+where dta.description = "AUTO*" ; add Intake here
+join srf
+where srf.task_assay_cd = dta.task_assay_cd
+and dta.active_ind = 1
+and dta.task_assay_cd > 0
+join sf
+where sf.sa_ref_fluid_id = srf.sa_ref_fluid_id 
+join sar
+where sar.sa_anesthesia_record_id = sf.sa_anesthesia_record_id
+
+with time = 30, maxrec = 100
